@@ -2,17 +2,18 @@ import axios from '@/lib/axios'
 import { useToasts } from 'react-toast-notifications'
 import { useRouter } from 'next/router'
 
-export const genreAPI = () => {
+
+export const noteAPI = () => {
     const { addToast } = useToasts()
     const router = useRouter()
 
-    const create = ({ setErrors, ...props }) => {
+    const createAuthor = async ({ setErrors, ...props }) => {
         setErrors([])
         axios
-            .post('/api/genres', props)
+            .post('/api/authors/notes', props)
             .then(res => {
                 addToast(res.data.message, { appearance: 'success', autoDismiss: true })
-                router.push('/genres')
+                router.push(`/authors/${props.author.id}/notes`)
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -21,13 +22,13 @@ export const genreAPI = () => {
             })
     }
 
-    const edit = async ({ setErrors, ...props }, id) => {
+    const editAuthor = async ({ setErrors, ...props }, id) => {
         setErrors([])
         axios
-            .put(`/api/genres/${id}`, props)
+            .put(`/api/authors/notes/${id}`, props)
             .then(res => {
                 addToast(res.data.message, { appearance: 'success', autoDismiss: true })
-                router.push('/genres')
+                router.push(`/authors/${props.author.id}/notes`)
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -36,9 +37,9 @@ export const genreAPI = () => {
             })
     }
 
-    const destroy = async (id) => {
+    const destroyAuthor = async (id) => {
         axios
-            .delete(`/api/genres/${id}`)
+            .delete(`/api/authors/notes/${id}`)
             .then(res => {
                 addToast(res.data.message, { appearance: 'success', autoDismiss: true })
             })
@@ -50,8 +51,8 @@ export const genreAPI = () => {
 
 
     return {
-        create,
-        edit,
-        destroy,
+        createAuthor,
+        editAuthor,
+        destroyAuthor,
     }
 }

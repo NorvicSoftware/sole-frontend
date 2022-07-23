@@ -58,7 +58,7 @@ const Login = () => {
                 <form onSubmit={submitForm}>
                     {/* Email Address */}
                     <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">Correo Electrónico</Label>
 
                         <Input
                             id="email"
@@ -73,7 +73,7 @@ const Login = () => {
 
                     {/* Password */}
                     <div className="mt-4">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">Contraseña</Label>
 
                         <Input
                             id="password"
@@ -99,7 +99,7 @@ const Login = () => {
                             />
 
                             <span className="ml-2 text-sm text-gray-600">
-                                Remember me
+                                Recuerdame
                             </span>
                         </label>
                     </div>
@@ -107,11 +107,11 @@ const Login = () => {
                     <div className="flex items-center justify-end mt-4">
                         <Link href="/forgot-password">
                             <a className="underline text-sm text-gray-600 hover:text-gray-900">
-                                Forgot your password?
+                                Olvidaste tú contraseña?
                             </a>
                         </Link>
 
-                        <Button className="ml-3">Login</Button>
+                        <Button className="ml-3">Iniciar sesión</Button>
                     </div>
                 </form>
             </AuthCard>

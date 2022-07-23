@@ -1,9 +1,9 @@
 import AppLayout from '@/components/Layouts/AppLayout'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
 import axios from '@/lib/axios'
 import { useEffect, useState } from 'react'
+import PreviousLink from '@/components/PreviousLink'
 
 const Show = () => {
     const router = useRouter()
@@ -15,30 +15,31 @@ const Show = () => {
     const [biography, setBiography] = useState('')
     const [website, setWebsite] = useState('')
     const [email, setEmail] = useState('')
-
     const [image, setImage] = useState('')
+
     useEffect(() => {
-        axios
-            .get(`/api/authors/${router.query.id}/profiles`)
-            .then(res => {
-                console.log('perfil: ', res.data)
-                setFullName(res.data.author.full_name)
-                setBirthDate(FormatDate(res.data.author.birth_date))
-                setCountry(res.data.author.country)
-                if (res.data.image != null) {
-                    setImage('http://127.0.0.1:8000' + res.data.image)
-                }
-                if (res.data.author.profile != null) {
-                    setCareer(res.data.author.profile.career)
-                    setBiography(res.data.author.profile.biography)
-                    setWebsite(res.data.author.profile.website)
-                    setEmail(res.data.author.profile.email)
-                }
-            })
-            .catch(error => {
-                console.log('error', error)
-            })
-    }, [router.query.id])
+        if (router.isReady) {
+            axios
+                .get(`/api/authors/${router.query.id}`)
+                .then(res => {
+                    setFullName(res.data.author.full_name)
+                    setBirthDate(FormatDate(res.data.author.birth_date))
+                    setCountry(res.data.author.country)
+                    if (res.data.image != null) {
+                        setImage('http://127.0.0.1:8000' + res.data.image)
+                    }
+                    if (res.data.author.profile != null) {
+                        setCareer(res.data.author.profile.career)
+                        setBiography(res.data.author.profile.biography)
+                        setWebsite(res.data.author.profile.website)
+                        setEmail(res.data.author.profile.email)
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                })
+        }
+    }, [router.isReady])
 
     function FormatDate(data) {
         const date = new Date(data.replace(/-/g, '\/'))
@@ -76,19 +77,13 @@ const Show = () => {
                                             <p><strong>Correo Electrónico:</strong> { email }</p>
                                         </div>
                                     ) : (
-                                        <p> El autor no tiene un perfil registrado</p>
+                                        <p> El autor no tiene aún un perfil registrado</p>
                                     ) }
                                 </div>
                                 <img src={ image } className="rounded-lg w-64"/>
                             </div>
-                            <div className="flex justify-end">
-                                <Link href="/authors">
-                                    <a className="text-blue-600 hover:text-blue-700 transition duration-300 ease-in-out mb-4">
-                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cat" className="w-6 h-6" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                            <path fill="currentColor" d="M256 504C119 504 8 393 8 256S119 8 256 8s248 111 248 248-111 248-248 248zm28.9-143.6L209.4 288H392c13.3 0 24-10.7 24-24v-16c0-13.3-10.7-24-24-24H209.4l75.5-72.4c9.7-9.3 9.9-24.8.4-34.3l-11-10.9c-9.4-9.4-24.6-9.4-33.9 0L107.7 239c-9.4 9.4-9.4 24.6 0 33.9l132.7 132.7c9.4 9.4 24.6 9.4 33.9 0l11-10.9c9.5-9.5 9.3-25-.4-34.3z"></path>
-                                        </svg>
-                                    </a>
-                                </Link>
+                            <div className="flex justify-end ">
+                                <PreviousLink href="/authors"></PreviousLink>
                             </div>
                         </div>
                     </div>

@@ -3,7 +3,7 @@ const AuthValidationErrors = ({ errors = [], ...props }) => (
         {errors.length > 0 && (
             <div {...props}>
                 <div className="font-medium text-red-600">
-                    Whoops! Something went wrong.
+                    Existe errores en el formulario.
                 </div>
 
                 <ul className="mt-3 list-disc list-inside text-sm text-red-600">
