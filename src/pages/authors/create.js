@@ -119,7 +119,6 @@ const Create = () => {
                                         />
                                     </div>
                                     <img src={imageUrl} className="rounded-lg w-48 py-2" />
-
                                     <Button>Guardar Author</Button>
                                 </div>
                             </form>

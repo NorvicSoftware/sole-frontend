@@ -14,13 +14,12 @@ import { ratingAPI } from '@/hooks/rating'
 import { useAuth } from '@/hooks/auth'
 
 const Create = () => {
-
-    const { createAuthor, editAuthor } = ratingAPI()
+    const { createBook, editBook } = ratingAPI()
     const { user } = useAuth({ middleware: 'auth' })
     const router = useRouter()
     const [errors, setErrors] = useState([])
-    const [author_id, setAuthorId] = useState('')
-    const [full_name, setFullName] = useState('')
+    const [book_id, setBookId] = useState('')
+    const [title, setTitle] = useState('')
     const [stars, setStars] = useState(1)
     const [rating_id, setRating] = useState('')
     const [user_id, setUserId] = useState('')
@@ -32,10 +31,10 @@ const Create = () => {
     const submitForm = event => {
         event.preventDefault()
         if (!rating_id) {
-            createAuthor({ number_star: stars, author: { id: author_id } , user: { id: user_id }, setErrors })
+            createBook({ number_star: stars, book: { id: book_id } , user: { id: user_id }, setErrors })
         }
         else {
-            editAuthor({ number_star: stars, author: { id: author_id } , user: { id: user_id }, setErrors }, rating_id)
+            editBook({ number_star: stars, book: { id: book_id } , user: { id: user_id }, setErrors }, rating_id)
         }
     }
 
@@ -43,10 +42,10 @@ const Create = () => {
         if (router.isReady) {
             setUserId(user.id)
             axios
-                .get(`/api/authors/${router.query.id}/ratings`)
+                .get(`/api/books/${router.query.id}/ratings`)
                 .then(res => {
-                    setFullName(res.data.author.full_name)
-                    setAuthorId(res.data.author.id)
+                    setTitle(res.data.book.title)
+                    setBookId(res.data.book.id)
                     if (res.data.rating != '') {
                         setStars(parseInt(res.data.rating[0].number_star))
                         setRating(res.data.rating[0].id)
@@ -62,11 +61,11 @@ const Create = () => {
         <AppLayout
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    Puntuar Autor: { full_name }
+                    Puntuar Libro: { title }
                 </h2>
             }>
             <Head>
-                <title>Laravel - Authors</title>
+                <title>Laravel - books</title>
             </Head>
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -97,11 +96,11 @@ const Create = () => {
                                             ))}
                                         </ul>
                                     </div>
-                                    <Button>Puntuar autor</Button>
+                                    <Button>Puntuar libro</Button>
                                 </div>
                             </form>
                             <div className="flex justify-end ">
-                                <PreviousLink href="/authors"></PreviousLink>
+                                <PreviousLink href="/books"></PreviousLink>
                             </div>
                         </div>
                     </div>

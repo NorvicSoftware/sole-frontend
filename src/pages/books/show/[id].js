@@ -16,25 +16,31 @@ const Show = () => {
     const [genre, setGenre] = useState('')
     const [publisher, setPublisher] = useState('')
     const [authors, setAuthors] = useState([])
+    const [image, setImage] = useState('')
 
     useEffect(() => {
-        axios
-            .get(`/api/books/${router.query.id}`)
-            .then(res => {
-                setTitle(res.data.book.title)
-                setSubtitle(res.data.book.subtitle)
-                setLanguage(res.data.book.language)
-                setPage(res.data.book.page)
-                setPublished(FormatDate(res.data.book.published))
-                setDescription(res.data.book.description)
-                setGenre(res.data.book.genre.name)
-                setPublisher(res.data.book.publisher.name)
-                setAuthors(res.data.book.authors)
-            })
-            .catch(error => {
-                if (error.response.status !== 409) throw error
-            })
-    }, [router.query.id])
+        if (router.isReady) {
+            axios
+                .get(`/api/books/${router.query.id}`)
+                .then(res => {
+                    setTitle(res.data.book.title)
+                    setSubtitle(res.data.book.subtitle)
+                    setLanguage(res.data.book.language)
+                    setPage(res.data.book.page)
+                    setPublished(FormatDate(res.data.book.published))
+                    setDescription(res.data.book.description)
+                    setGenre(res.data.book.genre.name)
+                    setPublisher(res.data.book.publisher.name)
+                    setAuthors(res.data.book.authors)
+                    if (res.data.image != null) {
+                        setImage('http://127.0.0.1:8000' + res.data.image)
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                })
+        }
+    }, [router.isReady])
 
     function FormatDate(data) {
         const date = new Date(data.replace(/-/g, '\/'))
@@ -58,19 +64,22 @@ const Show = () => {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 bg-white border-b border-gray-200">
-                            <div className="p-6 bg-white border-b border-gray-200">
-                                <h3><strong>{ title }</strong></h3>
-                                <h4><strong>{ subtitle }</strong></h4>
-                                <p><strong>Lenguaje:</strong> { language }</p>
-                                <p><strong>Número de paginas:</strong> { page }</p>
-                                <p><strong>Fecha Publicación:</strong> { published }</p>
-                                <p><strong>Género Literario:</strong> { genre }</p>
-                                <p><strong>Editorial:</strong> { publisher }</p>
-                                <p><strong>Autor(res):</strong> { authors?.map((author) => (
-                                    author.full_name + ", "
+                            <div className="flex justify-between py-3">
+                                <div>
+                                    <h3><strong>{ title }</strong></h3>
+                                    <h4><strong>{ subtitle }</strong></h4>
+                                    <p><strong>Lenguaje:</strong> { language }</p>
+                                    <p><strong>Número de paginas:</strong> { page }</p>
+                                    <p><strong>Fecha Publicación:</strong> { published }</p>
+                                    <p><strong>Género Literario:</strong> { genre }</p>
+                                    <p><strong>Editorial:</strong> { publisher }</p>
+                                    <p><strong>Autor(res):</strong> { authors?.map((author) => (
+                                        author.full_name + ", "
                                     ))}
-                                </p>
-                                <p> { description }</p>
+                                    </p>
+                                    <p> { description }</p>
+                                </div>
+                                <img src={ image } className="rounded-lg w-64"/>
                             </div>
                             <div className="flex justify-end ">
                                 <PreviousLink href="/books"></PreviousLink>

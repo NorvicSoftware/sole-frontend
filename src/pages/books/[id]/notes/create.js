@@ -12,31 +12,31 @@ import axios from '@/lib/axios'
 import { useAuth } from '@/hooks/auth'
 
 const Create = () => {
-    const { createAuthor, editAuthor } = noteAPI()
+    const { createBook, editBook } = noteAPI()
     const { user } = useAuth({ middleware: 'auth' })
     const [errors, setErrors] = useState([])
     const router = useRouter()
     const [description, setDescription] = useState('')
     const [writing_date, setWritingDate] = useState('')
-    const [id, setAuthorId] = useState('')
-    const [full_name, setFullName] = useState('')
+    const [id, setBookId] = useState('')
+    const [title, setTitle] = useState('')
     const [user_id, setUserId] = useState('')
 
     useEffect(() => {
         if (router.isReady) {
             setUserId(user.id)
             axios
-                .get(`/api/authors/${router.query.id}`)
+                .get(`/api/books/${router.query.id}`)
                 .then(res => {
-                    setFullName(res.data.author.full_name)
-                    setAuthorId(res.data.author.id)
+                    setTitle(res.data.book.title)
+                    setBookId(res.data.book.id)
                 })
                 .catch(error => {
                     if (error.response.status !== 409) throw error
                 })
             if (router.query.idNote) {
                 axios
-                    .get(`/api/authors/notes/${router.query.idNote}`)
+                    .get(`/api/books/notes/${router.query.idNote}`)
                     .then(resTwo => {
                         setDescription(resTwo.data.description)
                         setWritingDate(resTwo.data.writing_date)
@@ -63,9 +63,9 @@ const Create = () => {
     const submitForm = event => {
         event.preventDefault()
         if (!router.query.idNote) {
-            createAuthor({ description, writing_date, author: { id, full_name }, user: { id: user_id }, setErrors })
+            createBook({ description, writing_date, book: { id, title }, user: { id: user_id }, setErrors })
         } else {
-            editAuthor({ description, writing_date, author: { id, full_name }, user: { id: user_id }, setErrors }, router.query.idNote)
+            editBook({ description, writing_date, book: { id, title }, user: { id: user_id }, setErrors }, router.query.idNote)
         }
     }
 
@@ -73,11 +73,11 @@ const Create = () => {
         <AppLayout
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    {router.query.idNote ? "Editar Notas de autor" : "Crear Notas de autor"}: { full_name }
+                    {router.query.idNote ? "Editar Notas de autor" : "Crear Notas de autor"}: { title }
                 </h2>
             }>
             <Head>
-                <title>Laravel - Authors</title>
+                <title>Laravel - books</title>
             </Head>
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -96,12 +96,12 @@ const Create = () => {
                                             placeholder="Nota"
                                         />
                                     </div>
-                                    <Button>Guardar Notas de autor</Button>
+                                    <Button>Guardar Nota de libro</Button>
                                 </div>
                             </form>
                             <div className="flex justify-end ">
-                                <PreviousLink href={{ pathname: `/authors/[id]/notes`, query: { id: router.query.id }
-                                }} as={`/authors/${router.query.id}/notes`}>
+                                <PreviousLink href={{ pathname: `/books/[id]/notes`, query: { id: router.query.id }
+                                }} as={`/books/${router.query.id}/notes`}>
                                 </PreviousLink>
                             </div>
                         </div>

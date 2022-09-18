@@ -9,20 +9,20 @@ import { noteAPI } from '@/hooks/note'
 import DeleteButton from '@/components/DeleteButton'
 
 const Index = () => {
-    const { destroyAuthor } = noteAPI()
+    const { destroyBook } = noteAPI()
     const [notes, setNotes] = useState([])
-    const [author_id, setAuthorId] = useState('')
-    const [full_name, setFullName] = useState('')
+    const [book_id, setBookId] = useState('')
+    const [title, setTitle] = useState('')
     const router = useRouter()
 
     useEffect(() => {
         if (router.isReady) {
             axios
-                .get(`/api/authors/${router.query.id}/notes`)
+                .get(`/api/books/${router.query.id}/notes`)
                 .then(res => {
                     setNotes(res.data.notes)
-                    setAuthorId(res.data.author.id)
-                    setFullName(res.data.author.full_name)
+                    setBookId(res.data.book.id)
+                    setTitle(res.data.book.title)
                 })
                 .catch(error => {
                     if (error.response.status !== 409) throw error
@@ -37,31 +37,24 @@ const Index = () => {
     }
 
     const printPDF = async () => {
-        const res = await axios.get(`/api/authors/${author_id}/notes/generatepdf`, { responseType: "blob"})
+        const res = await axios.get(`/api/books/${book_id}/notes/generatepdf`, { responseType: "blob"})
         const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }))
         window.open(url, '_blank')
-
-        // const url = window.URL.createObjectURL(new Blob([res.data]))
-        // const link = document.createElement('a')
-        // link.href = url
-        // link.setAttribute('download', 'mynotes.pdf')
-        // document.body.appendChild(link)
-        // link.click()
     }
 
     const exportExcel = async () => {
-        const res = await axios.get(`/api/authors/${author_id}/notes/generateexcel`, { responseType: "blob"})
+        const res = await axios.get(`/api/books/${book_id}/notes/generateexcel`, { responseType: "blob"})
         const url = window.URL.createObjectURL(new Blob([res.data]))
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', 'NotasDeAutor.xlsx')
+        link.setAttribute('download', 'NotasDeLibro.xlsx')
         document.body.appendChild(link)
         link.click()
     }
 
     function destroyItem(id) {
         if (confirm('¿Seguro que desea eliminar el elemento seleccionado?')) {
-            destroyAuthor(id)
+            destroyBook(id)
             setNotes([...notes.filter((note) => note.id !== id)])
         }
     }
@@ -70,11 +63,11 @@ const Index = () => {
         <AppLayout
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                    Notas de autor: { full_name }
+                    Notas de libro: { title }
                 </h2>
             }>
             <Head>
-                <title>Laravel - Author</title>
+                <title>Laravel - book</title>
             </Head>
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -83,8 +76,8 @@ const Index = () => {
                             <div className="flex space-x-2 justify-start">
                                 <Button
                                     type="button"
-                                    onClick={() => router.push('/authors/[id]/notes/create', `/authors/${author_id}/notes/create`)}>
-                                    Nueva Nota de autor
+                                    onClick={() => router.push('/books/[id]/notes/create', `/books/${book_id}/notes/create`)}>
+                                    Nueva Nota de Libro
                                 </Button>
                                 <Button
                                     className="bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-800"
@@ -112,8 +105,8 @@ const Index = () => {
                                             { note.description }
                                         </td>
                                         <td className="flex space-x-2 text-sm text-gray-900 font-light px-6 py-4">
-                                            <EditLink href={{ pathname: `/authors/[id]/notes/edit/[idNote]`, query: { id: router.query.id, idNote: note.id }
-                                            }} as={`/authors/${router.query.id}/notes/edit/${note.id}`}>
+                                            <EditLink href={{ pathname: `/books/[id]/notes/edit/[idNote]`, query: { id: router.query.id, idNote: note.id }
+                                            }} as={`/books/${router.query.id}/notes/edit/${note.id}`}>
                                             </EditLink>
                                             <DeleteButton onClick={(e) => {
                                                 e.stopPropagation()

@@ -22,7 +22,7 @@ const Create = () => {
     const [email, setEmail] = useState('')
     const [id, setAuthorId] = useState('')
 
-    const [perfil_id, setPerfilId] = useState('')
+    const [profile_id, setProfileId] = useState('')
 
     useEffect(() => {
         if (router.isReady) {
@@ -32,7 +32,7 @@ const Create = () => {
                     setFullName(res.data.author.full_name)
                     setAuthorId(res.data.author.id)
                     if (res.data.author.profile != null) {
-                        setPerfilId(res.data.author.profile.id)
+                        setProfileId(res.data.author.profile.id)
                         setCareer(res.data.author.profile.career)
                         setBiography(res.data.author.profile.biography)
                         setWebsite(res.data.author.profile.website)
@@ -47,10 +47,10 @@ const Create = () => {
 
     const submitForm = event => {
         event.preventDefault()
-        if (!perfil_id) {
+        if (!profile_id) {
             createProfile({ career, biography, website, email, author: { id, full_name }, setErrors })
         } else {
-            editProfile({ career, biography, website, email, author: { id, full_name }, setErrors }, perfil_id)
+            editProfile({ career, biography, website, email, author: { id, full_name }, setErrors }, profile_id)
         }
     }
     return (

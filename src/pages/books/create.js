@@ -11,9 +11,12 @@ import Select from '@/components/Select'
 import Multiselect from '@/components/Multiselect'
 import Textarea from '@/components/Textarea'
 import axios from '@/lib/axios'
+import ImageInput from '@/components/ImageInput'
+import {useRouter} from 'next/router'
 
 const Create = () => {
-    const { create } = bookAPI()
+    const { create, edit } = bookAPI()
+    const router = useRouter()
     const [errors, setErrors] = useState([])
     const [title, setTitle] = useState('')
     const [subtitle, setSubtitle] = useState('')
@@ -27,6 +30,8 @@ const Create = () => {
     const [genres, setGenres] = useState([])
     const [publishers, setPublishers] = useState([])
     const [authors, setAuthors] = useState([])
+    const [image, setImage] = useState('')
+    const [imageUrl, setImageUrl] = useState('')
 
     const ChooseValueLanguage = (val) => {
         setLanguage(val)
@@ -38,6 +43,11 @@ const Create = () => {
         setPublisherId(parseInt(val))
     }
 
+    const onChangeHandler = event => {
+        setImageUrl(URL.createObjectURL(event.target.files[0]))
+        setImage(event.target.files[0])
+    }
+
     const ChooseMultiValueAuthors = (val) => {
         const updatedOptions = [...val.target.options]
             .filter(option => option.selected)
@@ -47,41 +57,84 @@ const Create = () => {
 
     const submitForm = async (event) => {
         event.preventDefault()
-        const authorsJSON = authors_id.map((val) => {
-            return { id: parseInt(val) }
-        })
-        create({ title, subtitle, language, page, published, description, genre: { id: genre_id }, publisher: { id: publisher_id }, authors: authorsJSON,  setErrors })
+        const data = new FormData()
+        data.append('image', image ? image : '')
+        data.append('title', title)
+        data.append('subtitle', subtitle)
+        data.append('language', language)
+        data.append('page', page)
+        data.append('published', published)
+        data.append('description', description)
+        data.append('genre_id', genre_id)
+        data.append('publisher_id', publisher_id)
+        authors_id.map((author) => {data.append('authors[]', author)})
+        if (!router.query.id) {
+            create(data, setErrors)
+        } else {
+            data.append('_method', 'put')
+            edit(data, setErrors, router.query.id)
+        }
     }
 
     useEffect(() => {
-        axios
-            .get('/api/genres')
-            .then(res => {
-                setGenres(res.data)
-                setGenreID(res.data[0].id)
-            })
-            .catch(error => {
-                if (error.response.status !== 409) throw error
-            })
+        if (router.isReady) {
+            if (router.query.id) {
+                axios
+                    .get(`/api/books/${router.query.id}`)
+                    .then(res => {
+                        console.log(res.data.book)
+                        setTitle(res.data.book.title)
+                        setSubtitle(res.data.book.subtitle)
+                        setLanguage(res.data.book.language)
+                        setPage(res.data.book.page)
+                        setPublished(res.data.book.published)
+                        setDescription(res.data.book.description)
+                        setGenreID(res.data.book.genre_id)
+                        setPublisherId(res.data.book.publisher_id)
+                        // setAuthorsId([1])
+                        setAuthorsId(res.data.book.authors.map((author) => { return author.id }))
+                        if (res.data.image != null) {
+                            setImageUrl('http://127.0.0.1:8000' + res.data.image)
+                        }
+                    })
+                    .catch(error => {
+                        if (error.response.status !== 409) throw error
+                    })
+            }
+            axios
+                .get('/api/genres')
+                .then(res => {
+                    setGenres(res.data)
+                    if (!router.query.id) {
+                        setGenreID(res.data[0].id)
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                })
 
-        axios
-            .get('/api/publishers')
-            .then(res => {
-                setPublishers(res.data)
-                setPublisherId(res.data[0].id)
-            })
-            .catch(error => {
-                if (error.response.status !== 409) throw error
-            })
+            axios
+                .get('/api/publishers')
+                .then(res => {
+                    setPublishers(res.data)
+                    if (!router.query.id) {
+                        setPublisherId(res.data[0].id)
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                })
 
-        axios
-            .get('/api/authors')
-            .then(res => {
-                setAuthors(res.data)
-            })
-            .catch(error => {
-                if (error.response.status !== 409) throw error
-            })
+            axios
+                .get('/api/authors')
+                .then(res => {
+                    setAuthors(res.data)
+                })
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                })
+
+        }
     }, [])
 
     return (
@@ -188,6 +241,16 @@ const Create = () => {
                                             placeholder="Descripción"
                                         />
                                     </div>
+                                    <div className="mb-3 w-96">
+                                        <Label htmlFor="image">Imagen</Label>
+                                        <ImageInput
+                                            id="image"
+                                            type="file"
+                                            className="block mt-1 w-full"
+                                            onChange={onChangeHandler}
+                                        />
+                                    </div>
+                                    <img src={imageUrl} className="rounded-lg w-48 py-2" />
                                     <Button>Guardar Libro</Button>
                                 </div>
                             </form>
